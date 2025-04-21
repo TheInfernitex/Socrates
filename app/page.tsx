@@ -19,6 +19,9 @@ const formatTime = () => {
   });
 };
 export default function Home() {
+  const messageContainerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
@@ -89,11 +92,39 @@ export default function Home() {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (!messageContainerRef.current || !wrapperRef.current) return;
+
+      const wrapper = wrapperRef.current;
+      const form = wrapper.querySelector("form");
+      const header = wrapper.querySelector(".text-center");
+
+      const totalWrapperHeight = wrapper.clientHeight;
+      const formHeight = form?.clientHeight || 0;
+      const headerHeight = header?.clientHeight || 0;
+      const spacing = 32;
+
+      const availableHeight =
+        totalWrapperHeight - formHeight - headerHeight - spacing - 50;
+
+      messageContainerRef.current.style.height = `${availableHeight}px`;
+    };
+
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4 text-white">
       <Script src="https://js.puter.com/v2/" strategy="afterInteractive" />
 
-      <div className="bg-gray-900 rounded-2xl shadow-xl w-full max-w-[96%] min-h-[90vh] p-6 flex flex-col space-y-4">
+      <div
+        ref={wrapperRef}
+        className="bg-gray-900 rounded-2xl shadow-xl w-full max-w-[96%] p-6 flex flex-col space-y-4"
+      >
         <div className="text-center">
           <h1 className="text-3xl font-bold text-white">Socrates</h1>
           <p className="text-gray-300 mt-1">
@@ -102,7 +133,10 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="flex flex-col bg-gray-800 border border-gray-700 rounded-xl p-4 h-[70vh] overflow-y-auto space-y-4">
+        <div
+          ref={messageContainerRef}
+          className="flex flex-col bg-gray-800 border border-gray-700 rounded-xl p-4 h-[70vh] overflow-y-auto space-y-4"
+        >
           {messages.map((msg, index) => (
             <div
               key={index}
