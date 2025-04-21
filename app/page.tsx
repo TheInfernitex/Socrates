@@ -1,103 +1,119 @@
-import Image from "next/image";
+"use client";
 
+import { useEffect, useState } from "react";
+import Script from "next/script";
+type ChatMessage = {
+  role: "user" | "socrates";
+  content: string;
+};
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [puterReady, setPuterReady] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const checkPuter = setInterval(() => {
+      if (typeof window !== "undefined" && window.puter) {
+        setPuterReady(true);
+        clearInterval(checkPuter);
+      }
+    }, 200);
+    return () => clearInterval(checkPuter);
+  }, []);
+
+  const systemPrompt = `
+    You are a digital Socrates. 
+    People will share thoughts, problems, or beliefs with you. You are a sceptic. Ask them questions they have never considered. Shatter their worldview.
+    Challenge them to reflect deeper. DO NOT provide a whole explaination or answer like an llm. Don't be deplomatic. Confront people's biases like Socrates used to. 
+   Guide them towards critical thinking. Be casual. Chat with them. Be wise.`;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!puterReady || !input.trim()) {
+      console.log("puter not ready");
+      return;
+    }
+    const userMessage = input.trim();
+    setInput("");
+    setLoading(true);
+
+    try {
+      const chat = await window.puter.ai.chat(systemPrompt + input, {
+        model: "gpt-4o-mini",
+      });
+      const socratesReply = String(chat.message.content);
+
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", content: userMessage },
+        { role: "socrates", content: socratesReply },
+      ]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", content: userMessage },
+        {
+          role: "socrates",
+          content: "Hmm... something went wrong. Try again later.",
+        },
+      ]);
+    }
+
+    setLoading(false);
+  };
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4 text-white">
+      <Script src="https://js.puter.com/v2/" strategy="afterInteractive" />
+
+      <div className="bg-gray-900 rounded-2xl shadow-xl w-full max-w-[96%] min-h-[90vh] p-6 flex flex-col space-y-4">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-white">Socrates</h1>
+          <p className="text-gray-300 mt-1">
+            The digital philosopher is at your service. Get ready to question
+            your worldview.
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        <div className="flex flex-col bg-gray-800 border border-gray-700 rounded-xl p-4 h-[70vh] overflow-y-auto space-y-4">
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`${
+                msg.role === "user"
+                  ? "self-end bg-blue-600 text-white"
+                  : "self-start bg-gray-700 text-gray-100"
+              } p-3 rounded-xl max-w-[80%] text-sm shadow`}
+            >
+              {msg.role === "socrates" && <strong>Socrates: </strong>}
+              {msg.content}
+            </div>
+          ))}
+          {loading && (
+            <div className="self-start bg-gray-700 text-gray-400 p-3 rounded-xl max-w-[80%] text-sm italic shadow">
+              Socrates is pondering...
+            </div>
+          )}
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex items-center gap-2">
+          <input
+            type="text"
+            className="flex-grow border border-gray-600 bg-gray-800 rounded-full pl-2 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
+            placeholder="Ask something deep..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={loading}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <button
+            type="submit"
+            disabled={loading || !puterReady}
+            className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition"
+          >
+            {loading ? "..." : "→"}
+          </button>
+        </form>
+      </div>
+    </main>
   );
 }
