@@ -6,6 +6,11 @@ type ChatMessage = {
   role: "user" | "socrates";
   content: string;
 };
+declare global {
+  interface Window {
+    puter: any;
+  }
+}
 export default function Home() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
