@@ -1,22 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Script from "next/script";
 type ChatMessage = {
   role: "user" | "socrates";
   content: string;
+  timestamp: string;
 };
 declare global {
   interface Window {
     puter: any;
   }
 }
+const formatTime = () => {
+  return new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 export default function Home() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [puterReady, setPuterReady] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
   useEffect(() => {
     const checkPuter = setInterval(() => {
       if (typeof window !== "undefined" && window.puter) {
@@ -51,16 +62,17 @@ export default function Home() {
 
       setMessages((prev) => [
         ...prev,
-        { role: "user", content: userMessage },
-        { role: "socrates", content: socratesReply },
+        { role: "user", content: userMessage, timestamp: formatTime() },
+        { role: "socrates", content: socratesReply, timestamp: formatTime() },
       ]);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { role: "user", content: userMessage },
+        { role: "user", content: userMessage, timestamp: formatTime() },
         {
           role: "socrates",
           content: "Hmm... something went wrong. Try again later.",
+          timestamp: formatTime(),
         },
       ]);
     }
@@ -84,16 +96,29 @@ export default function Home() {
           {messages.map((msg, index) => (
             <div
               key={index}
-              className={`${
+              className={`flex flex-col ${
                 msg.role === "user"
-                  ? "self-end bg-blue-600 text-white"
-                  : "self-start bg-gray-700 text-gray-100"
-              } p-3 rounded-xl max-w-[80%] text-sm shadow`}
+                  ? "self-end items-end"
+                  : "self-start items-start"
+              }`}
             >
-              {msg.role === "socrates" && <strong>Socrates: </strong>}
-              {msg.content}
+              <div
+                className={`${
+                  msg.role === "user"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-700 text-gray-100"
+                } p-3 rounded-xl max-w-[80%] text-sm shadow`}
+              >
+                {msg.role === "socrates" && <strong>Socrates: </strong>}
+                {msg.content}
+              </div>
+              <span className="text-xs text-gray-400 mt-1">
+                {msg.timestamp}
+              </span>
             </div>
           ))}
+          <div ref={messagesEndRef} />
+
           {loading && (
             <div className="self-start bg-gray-700 text-gray-400 p-3 rounded-xl max-w-[80%] text-sm italic shadow">
               Socrates is pondering...
