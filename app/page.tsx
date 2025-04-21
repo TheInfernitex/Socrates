@@ -50,12 +50,22 @@ export default function Home() {
       console.log("puter not ready");
       return;
     }
+
     const userMessage = input.trim();
     setInput("");
     setLoading(true);
 
+    const chatHistory = [
+      { role: "system", content: systemPrompt },
+      ...messages.map((m) => ({
+        role: m.role === "user" ? "user" : "assistant",
+        content: m.content,
+      })),
+      { role: "user", content: userMessage },
+    ];
+
     try {
-      const chat = await window.puter.ai.chat(systemPrompt + input, {
+      const chat = await window.puter.ai.chat(chatHistory, {
         model: "gpt-4o-mini",
       });
       const socratesReply = String(chat.message.content);
