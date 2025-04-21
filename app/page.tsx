@@ -1,5 +1,8 @@
 "use client";
+import { FaUser, FaPaperPlane } from "react-icons/fa";
+import { FiLoader } from "react-icons/fi";
 
+import { GiGreekTemple } from "react-icons/gi";
 import { useEffect, useState, useRef } from "react";
 import Script from "next/script";
 type ChatMessage = {
@@ -153,7 +156,11 @@ export default function Home() {
                     : "bg-gray-700 text-gray-100"
                 } p-3 rounded-xl max-w-[80%] text-sm shadow`}
               >
-                {msg.role === "socrates" && <strong>Socrates: </strong>}
+                {msg.role === "socrates" ? (
+                  <GiGreekTemple className="text-gray-400 mt-1" />
+                ) : (
+                  <FaUser className="text-blue-300 mt-1" />
+                )}
                 {msg.content}
               </div>
               <span className="text-xs text-gray-400 mt-1">
@@ -164,7 +171,8 @@ export default function Home() {
           <div ref={messagesEndRef} />
 
           {loading && (
-            <div className="self-start bg-gray-700 text-gray-400 p-3 rounded-xl max-w-[80%] text-sm italic shadow">
+            <div className="self-start bg-gray-700 text-gray-400 p-3 rounded-xl max-w-[80%] text-sm italic shadow flex items-center gap-2">
+              <FiLoader className="animate-spin" />
               Socrates is pondering...
             </div>
           )}
@@ -182,9 +190,9 @@ export default function Home() {
           <button
             type="submit"
             disabled={loading || !puterReady}
-            className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition flex items-center justify-center"
           >
-            {loading ? "..." : "→"}
+            {loading ? <FiLoader className="animate-spin" /> : <FaPaperPlane />}
           </button>
         </form>
       </div>
