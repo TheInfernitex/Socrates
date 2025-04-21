@@ -132,7 +132,7 @@ export default function Home() {
           <h1 className="text-4xl font-extrabold text-white tracking-wide drop-shadow-lg">
             Socrates
           </h1>
-          <p className="text-gray-300 mt-2 text-sm sm:text-base max-w-md mx-auto">
+          <p className="text-gray-300 mt-2 text-sm sm:text-base mx-auto">
             The digital philosopher is at your service. Prepare to question
             everything.
           </p>
@@ -140,7 +140,7 @@ export default function Home() {
 
         <div
           ref={messageContainerRef}
-          className="flex flex-col bg-white/5 border border-white/10 rounded-xl p-4 h-[60vh] sm:h-[65vh] overflow-y-auto space-y-4 backdrop-blur-sm"
+          className="flex flex-col bg-blue-800/5 border border-white/10 rounded-xl p-4 h-[60vh] sm:h-[65vh] overflow-y-auto space-y-4 backdrop-blur-sm"
         >
           {messages.map((msg, index) => (
             <div
