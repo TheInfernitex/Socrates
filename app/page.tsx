@@ -177,7 +177,7 @@ export default function Home() {
           {loading && (
             <div className="self-start bg-white/10 text-gray-300 px-4 py-2 rounded-xl text-sm italic shadow-md border border-white/20 flex items-center gap-2">
               <FiLoader className="animate-spin" />
-              Socrates is pondering...
+              Socrates is typing...
             </div>
           )}
         </div>
