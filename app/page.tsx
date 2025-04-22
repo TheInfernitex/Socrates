@@ -133,7 +133,7 @@ export default function Home() {
             Socrates
           </h1>
           <p className="text-gray-300 mt-2 text-sm sm:text-base mx-auto">
-            The digital philosopher is at your service. Prepare to question
+            The digital philosopher is at your service. Get prepared to question
             everything.
           </p>
         </div>
@@ -186,7 +186,7 @@ export default function Home() {
           <input
             type="text"
             className="flex-grow px-4 py-2 rounded-full bg-white/10 text-white placeholder-gray-300 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white/20 transition backdrop-blur-sm"
-            placeholder="Ask something deep..."
+            placeholder="Engage in a deep discussion..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={loading}
